@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GLAD Privat Voksbehandling</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
+:root{--cream:#fffaf6;--pink:#cf6879;--deep:#b64f62;--gold:#b47a19;--ink:#292426;--line:#ecd8d4}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:Montserrat,Arial,sans-serif}
+.wrap{max-width:1180px;margin:auto;padding:0 28px}
+header{background:#fffaf6;border-bottom:1px solid var(--line)}
+.nav{height:88px;display:flex;align-items:center;justify-content:space-between}
+.logo{width:210px;height:70px;object-fit:contain}
+.links{display:flex;gap:28px;align-items:center;font-size:12px;font-weight:700}
+.links a{text-decoration:none;color:var(--ink)}.links a:hover{color:var(--pink)}
+.btn{display:inline-block;background:var(--pink);color:#fff!important;text-decoration:none;padding:14px 25px;border-radius:10px;font-weight:700;border:0}
+.hero{min-height:650px;display:flex;align-items:center;background:radial-gradient(circle at 90% 30%,#f2d1d2 0,transparent 28%),linear-gradient(135deg,#fffaf6,#f9e8e5)}
+.heroGrid{display:grid;grid-template-columns:1.05fr .95fr;gap:55px;align-items:center}
+.eyebrow{color:var(--gold);letter-spacing:.22em;font-size:13px;font-weight:700}
+h1,h2,h3{font-family:"Cormorant Garamond",serif}h1{font-size:75px;line-height:.9;margin:18px 0 25px}h1 span{color:var(--pink)}
+.lead{font-size:16px;line-height:1.9;color:#665d5f;max-width:620px}
+.heroCard{min-height:440px;border-radius:32px;background:linear-gradient(145deg,#e6b7b8,#f8e3df);display:flex;align-items:center;justify-content:center;box-shadow:0 25px 70px rgba(110,60,60,.13)}
+.heroCard img{width:72%;max-height:320px;object-fit:contain;filter:drop-shadow(0 18px 20px rgba(100,50,50,.12))}
+section{padding:75px 0}.center{text-align:center}.center h2{font-size:46px;margin:0 0 10px}
+.sub{color:#746b6c;line-height:1.7}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-top:35px}
+.card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:25px;text-align:center}.card .ico{font-size:27px}.card h3{font-family:Montserrat;font-size:14px;margin:13px 0 7px}.card b{color:var(--pink)}
+.about{background:#f7e6e2}.aboutGrid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}.about h2{font-size:50px;margin:0 0 15px}.quote{font-family:"Cormorant Garamond";font-size:31px;line-height:1.3;color:var(--deep)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:35px}.step{padding:25px;background:#fff;border:1px solid var(--line);border-radius:17px}.num{color:var(--gold);font-weight:700}
+.cta{background:var(--pink);color:#fff;text-align:center}.cta h2{font-size:52px;margin:0 0 10px}.cta p{opacity:.9}.cta .btn{background:#fff;color:var(--deep)!important;margin-top:12px}
+footer{background:#d98c99;color:#fff;padding:35px 0}.foot{display:flex;justify-content:space-between;align-items:center;gap:30px}.foot img{width:180px;filter:brightness(0) invert(1)}.foot p{font-size:12px;line-height:1.8}.insta{font-family:"Cormorant Garamond";font-size:27px}
+@media(max-width:850px){.links a:not(.book){display:none}.heroGrid,.aboutGrid{grid-template-columns:1fr}h1{font-size:57px}.hero{padding:55px 0}.cards{grid-template-columns:1fr 1fr}.steps{grid-template-columns:1fr}.foot{flex-direction:column;text-align:center}}
+@media(max-width:500px){.wrap{padding:0 15px}.logo{width:175px}.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="wrap nav">
+<img class="logo" src="glad-logo.png" alt="GLAD Privat Voksbehandling">
+<nav class="links">
+<a href="index.html">FORSIDE</a><a href="#behandlinger">BEHANDLINGER</a><a href="#om">OM OS</a>
+<a class="book btn" href="book.html">BOOK TID</a>
+<a target="_blank" href="https://www.instagram.com/privat.voksbehandling/" style="font-size:20px">◎</a>
+</nav></div></header>
+<section class="hero"><div class="wrap heroGrid"><div>
+<div class="eyebrow">GLAD PRIVAT VOKSBEHANDLING</div>
+<h1>Smuk hud.<br><span>Kun til dig.</span></h1>
+<p class="lead">Professionel voksbehandling i rolige og private omgivelser i Holstebro. Her er fokus på dig, din komfort og et resultat du kan være glad for.</p>
+<a class="btn" href="book.html">♡ &nbsp; BOOK MIN TID</a>
+</div><div class="heroCard"><img src="glad-logo.png" alt="GLAD"></div></div></section>
+<section id="behandlinger"><div class="wrap"><div class="center"><h2>Vores behandlinger</h2><p class="sub">Vælg den behandling der passer til dig.</p></div>
+<div class="cards">
+<div class="card"><div class="ico">♡</div><h3>ØJENBRYN</h3><b>150 kr</b></div>
+<div class="card"><div class="ico">✦</div><h3>OVERLÆBE</h3><b>100 kr</b></div>
+<div class="card"><div class="ico">◇</div><h3>ANSIGT</h3><b>300 kr</b></div>
+<div class="card"><div class="ico">○</div><h3>ARME</h3><b>250 kr</b></div>
+<div class="card"><div class="ico">♡</div><h3>BEN</h3><b>350 kr</b></div>
+<div class="card"><div class="ico">✧</div><h3>BIKINI</h3><b>250 kr</b></div>
+<div class="card"><div class="ico">✦</div><h3>HELE KROPPEN</h3><b>700 kr</b></div>
+</div></div></section>
+<section id="om" class="about"><div class="wrap aboutGrid"><div><div class="eyebrow">OM GLAD</div><h2>Diskretion er en selvfølge.</h2><p class="sub">Hos GLAD Privat Voksbehandling får du en personlig og professionel behandling i private omgivelser. Vi lægger vægt på hygiejne, tryghed og et flot resultat.</p></div><div class="quote">“Din behandling skal føles lige så god, som resultatet ser ud.”</div></div></section>
+<section><div class="wrap center"><h2>Sådan foregår det</h2><div class="steps"><div class="step"><div class="num">01</div><h3>Book online</h3><p class="sub">Vælg behandling, dato og et ledigt tidspunkt.</p></div><div class="step"><div class="num">02</div><h3>Kom til din tid</h3><p class="sub">Vi tager imod dig i rolige og private omgivelser.</p></div><div class="step"><div class="num">03</div><h3>Nyd resultatet</h3><p class="sub">En professionel behandling med fokus på dig.</p></div></div></div></section>
+<section class="cta"><div class="wrap"><h2>Klar til din behandling?</h2><p>Book din tid online på få minutter.</p><a class="btn" href="book.html">BOOK MIN TID</a></div></section>
+<footer><div class="wrap foot"><img src="glad-logo.png" alt="GLAD"><p>📍 HOLSTEBRO, DANMARK<br>☎ +45 81 90 28 66<br>◎ privat.voksbehandling</p><div class="insta">privat.voksbehandling ♡</div></div></footer>
+</body></html>
