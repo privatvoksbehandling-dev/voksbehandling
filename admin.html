@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="da">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GLAD Admin</title>
+<style>
+body{margin:0;background:#fff8f5;font-family:Arial;color:#2b2627}.wrap{max-width:1200px;margin:auto;padding:20px}.box{background:#fff;border:1px solid #ead6d2;border-radius:16px;padding:20px;margin:15px 0}.hide{display:none!important}
+input,button{padding:11px;border:1px solid #dfcbc7;border-radius:8px;font:inherit}button{background:#cf6879;color:#fff;border:0;cursor:pointer}.danger{background:#a44b57}.green{background:#5c8d68}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}.booking{border-top:1px solid #eee;padding:14px 0;line-height:1.7}.status{font-weight:bold}.cancelled{opacity:.55;background:#fafafa;padding:10px;border-radius:8px}
+</style></head><body><div class="wrap">
+<div id="loginBox" class="box" style="max-width:420px;margin:70px auto"><h2>GLAD Admin</h2><input id="passwordInput" type="password" placeholder="Admin adgangskode" style="width:100%"><button id="loginButton" style="width:100%;margin-top:10px">Log ind</button><p id="loginError"></p></div>
+<div id="adminPanel" class="hide"><div class="top"><h1>GLAD Admin – Bookinger</h1><button id="logoutButton">Log ud</button></div><div class="box"><div class="top"><h2>📅 Randevular</h2><button id="refreshButton" class="green">Opdater</button></div><div id="message"></div><div id="bookingList"></div></div></div>
+</div>
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbyVBAfPrycPOCL1e9wJZDkCtugTeQ-qzt5tTgSWp2TWdFadaAtGTKPo0FjtENTK1OBYCA/exec";
+let adminToken="", bookings=[];
+const $=id=>document.getElementById(id);
+const esc=v=>String(v||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+const money=n=>Number(n||0).toLocaleString("da-DK",{maximumFractionDigits:2})+" kr";
+
+function showPanel(){$("loginBox").classList.add("hide");$("adminPanel").classList.remove("hide")}
+function showLogin(){$("adminPanel").classList.add("hide");$("loginBox").classList.remove("hide")}
+
+async function loginAdmin(){
+ adminToken=$("passwordInput").value.trim();
+ if(!adminToken){$("loginError").textContent="Skriv adgangskoden.";return}
+ $("loginError").textContent="";
+ await loadBookings();
+}
+
+async function loadBookings(){
+ try{
+  const response=await fetch(API_URL+"?action=list&token="+encodeURIComponent(adminToken));
+  const data=await response.json();
+  if(!data.ok) throw new Error(data.message||"Forkert adgangskode eller serverfejl.");
+  bookings=data.rows||[];
+  showPanel();
+  renderBookings();
+ }catch(error){$("loginError").textContent=error.message;showLogin()}
+}
+
+function renderBookings(){
+ const list=$("bookingList");
+ if(!bookings.length){list.innerHTML="<p>Ingen bookinger.</p>";return}
+ list.innerHTML=bookings.map(item=>{
+  const cancelled=item.status==="Annulleret";
+  return `<div class="booking ${cancelled?"cancelled":""}">
+   <b>${esc(item.date)} – ${esc(item.time)}</b><br>
+   Kunde: ${esc(item.name)}<br>
+   Behandling: ${esc(item.service)} – <b>${money(item.price)}</b><br>
+   Telefon: ${esc(item.phone)}<br>
+   Not: ${esc(item.note||"-")}<br>
+   Status: <span class="status">${esc(item.status||"Bekræftet")}</span><br>
+   ${cancelled?'<button disabled>Annulleret</button>':`<button class="danger" data-cancel="${esc(item.id)}">Annuller booking</button>`}
+  </div>`;
+ }).join("");
+ document.querySelectorAll("[data-cancel]").forEach(btn=>{
+   btn.addEventListener("click",()=>cancelBooking(btn.dataset.cancel));
+ });
+}
+
+async function cancelBooking(id){
+ const booking=bookings.find(x=>String(x.id)===String(id));
+ if(!booking)return;
+ if(!confirm(`${booking.name} – ${booking.date} ${booking.time}\n\nVil du annullere denne booking?`))return;
+
+ $("message").textContent="Annullerer booking...";
+ try{
+   const response=await fetch(API_URL,{
+     method:"POST",
+     headers:{"Content-Type":"text/plain;charset=utf-8"},
+     body:JSON.stringify({
+       action:"status",
+       token:adminToken,
+       id:id,
+       status:"Annulleret"
+     })
+   });
+   const data=await response.json();
+   if(!data.ok)throw new Error(data.message||"Booking kunne ikke annulleres.");
+   $("message").textContent="✓ Bookingen er annulleret.";
+   await loadBookings();
+ }catch(error){
+   $("message").textContent="Fejl: "+error.message;
+   alert("Fejl: "+error.message);
+ }
+}
+
+$("loginButton").addEventListener("click",loginAdmin);
+$("passwordInput").addEventListener("keydown",e=>{if(e.key==="Enter")loginAdmin()});
+$("refreshButton").addEventListener("click",loadBookings);
+$("logoutButton").addEventListener("click",()=>{adminToken="";$("passwordInput").value="";showLogin();});
+</script></body></html>
