@@ -7,7 +7,7 @@ body{margin:0;background:#fff8f5;font-family:Arial;color:#2b2627}.wrap{max-width
 <div class="box"><h2>🧮 Hurtig beregner</h2><input id="a" type="number" placeholder="Beløb" oninput="calc()" style="width:100%;margin-bottom:8px"><select id="op" onchange="calc()" style="width:100%;margin-bottom:8px"><option value="+">+</option><option value="-">−</option><option value="*">×</option><option value="/">÷</option></select><input id="b" type="number" placeholder="Beløb" oninput="calc()" style="width:100%"><div class="summary" style="margin-top:12px">Resultat: <b id="result">0 kr</b><br><hr>Omsætning: <span id="sr">0 kr</span><br>Udgifter: <span id="se">0 kr</span><br>Resultat: <b id="sp">0 kr</b></div></div></div>
 <div class="box"><h2>📅 Bookinger</h2><button onclick="load()">Opdater</button><div id="list"></div></div></div></div>
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbyVBAfPrycPOCL1e9wJZDkCtugTeQ-qzt5tTgSWp2TWdFadaAtGTKPo0FjtENTK1OBYCA/exec";let token=localStorage.getItem("gladAdmin")||"",bookings=[];
+const API_URL="https://script.google.com/macros/s/AKfycbzt-ZG3_oDBnsEFx114tnLS5bpoDzzU93Ax2lKefZPo_lDEXAbK2s-zDio5pMsBtjE1yg/exec";let token=localStorage.getItem("gladAdmin")||"",bookings=[];
 const money=n=>Number(n||0).toLocaleString("da-DK",{maximumFractionDigits:2})+" kr";
 function login(){token=pw.value;localStorage.setItem("gladAdmin",token);load()}
 function ex(){return JSON.parse(localStorage.getItem("gladExpenses")||"[]")}
