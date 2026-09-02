@@ -10,7 +10,7 @@ input,button{padding:11px;border:1px solid #dfcbc7;border-radius:8px;font:inheri
 <div id="adminPanel" class="hide"><div class="top"><h1>GLAD Admin – Bookinger</h1><button id="logoutButton">Log ud</button></div><div class="box"><div class="top"><h2>📅 Randevular</h2><button id="refreshButton" class="green">Opdater</button></div><div id="message"></div><div id="bookingList"></div></div></div>
 </div>
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbyVBAfPrycPOCL1e9wJZDkCtugTeQ-qzt5tTgSWp2TWdFadaAtGTKPo0FjtENTK1OBYCA/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbzt-ZG3_oDBnsEFx114tnLS5bpoDzzU93Ax2lKefZPo_lDEXAbK2s-zDio5pMsBtjE1yg/exec";
 let adminToken="", bookings=[];
 const $=id=>document.getElementById(id);
 const esc=v=>String(v||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
