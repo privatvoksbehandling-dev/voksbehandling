@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GLAD Admin Kontrolpanel</title>
+<style>
+:root{--pink:#cf6879;--deep:#a94759;--cream:#fff8f5;--line:#ead6d2;--ink:#2b2627}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);font-family:Arial,sans-serif;color:var(--ink)}
+.wrap{max-width:1200px;margin:auto;padding:20px}
+.box{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;margin:15px 0}
+.hide{display:none!important}
+input,button,select{padding:11px;border:1px solid #dfcbc7;border-radius:8px;font:inherit}
+button{background:var(--pink);color:#fff;border:0;cursor:pointer}
+button:hover{opacity:.9}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{padding:15px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.stat small{color:#777;font-weight:bold}
+.stat b{display:block;font-size:22px;color:var(--deep);margin-top:7px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.expenseInput{display:grid;grid-template-columns:1fr 130px 90px;gap:8px}
+.expenseRow{display:grid;grid-template-columns:1fr 130px 70px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid #eee}
+.danger{background:#9b5861}
+.summary{background:#fff4f1;padding:14px;border-radius:10px;line-height:1.9;margin-top:12px}
+.booking{border-top:1px solid #eee;padding:13px 0;font-size:13px;line-height:1.6}
+.booking b{color:var(--deep)}
+@media(max-width:850px){.stats,.grid{grid-template-columns:1fr}.expenseInput,.expenseRow{grid-template-columns:1fr 100px 70px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div id="loginBox" class="box" style="max-width:420px;margin:70px auto">
+  <h2>GLAD Admin</h2>
+  <input id="passwordInput" type="password" placeholder="Admin adgangskode" style="width:100%">
+  <button id="loginButton" style="width:100%;margin-top:10px">Log ind</button>
+  <p id="loginError" style="color:#a33"></p>
+</div>
+
+<div id="adminPanel" class="hide">
+  <div class="top">
+    <div><h1>GLAD Admin Kontrolpanel</h1><p>Bookinger, indtægter og udgifter.</p></div>
+    <button id="logoutButton">Log ud</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><small>AKTIVE BOOKINGER</small><b id="bookingCount">0</b></div>
+    <div class="stat"><small>OMSÆTNING</small><b id="revenueTotal">0 kr</b></div>
+    <div class="stat"><small>UDGIFTER</small><b id="expenseTotal">0 kr</b></div>
+    <div class="stat"><small>ESTIMERET RESULTAT</small><b id="profitTotal">0 kr</b></div>
+  </div>
+
+  <div class="grid">
+    <section class="box">
+      <h2>🧾 Indkøb / udgifter</h2>
+      <p style="font-size:13px;color:#777">Tilføj voks, handsker, udstyr eller andre udgifter.</p>
+
+      <div class="expenseInput">
+        <input id="expenseName" placeholder="F.eks. Voks">
+        <input id="expensePrice" type="number" min="0" step="0.01" placeholder="Pris">
+        <button id="addExpenseButton">Tilføj</button>
+      </div>
+
+      <div id="expenseList"></div>
+    </section>
+
+    <section class="box">
+      <h2>🧮 Hurtig beregner</h2>
+      <input id="calcFirst" type="number" placeholder="Første beløb" style="width:100%;margin-bottom:8px">
+      <select id="calcOperator" style="width:100%;margin-bottom:8px">
+        <option value="+">Læg til (+)</option>
+        <option value="-">Træk fra (−)</option>
+        <option value="*">Gang (×)</option>
+        <option value="/">Divider (÷)</option>
+      </select>
+      <input id="calcSecond" type="number" placeholder="Andet beløb" style="width:100%">
+
+      <div class="summary">
+        <b>Resultat:</b> <span id="calculatorResult">0 kr</span>
+        <hr style="border:0;border-top:1px solid #eee">
+        <b>Omsætning:</b> <span id="summaryRevenue">0 kr</span><br>
+        <b>Udgifter:</b> <span id="summaryExpenses">0 kr</span><br>
+        <b>Resultat:</b> <span id="summaryProfit">0 kr</span>
+      </div>
+    </section>
+  </div>
+
+  <section class="box">
+    <div class="top">
+      <h2>📅 Bookinger</h2>
+      <button id="refreshButton">Opdater</button>
+    </div>
+    <div id="bookingList"></div>
+  </section>
+</div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyVBAfPrycPOCL1e9wJZDkCtugTeQ-qzt5tTgSWp2TWdFadaAtGTKPo0FjtENTK1OBYCA/exec";
+
+let adminToken = localStorage.getItem("gladAdmin") || "";
+let bookings = [];
+
+const $ = (id) => document.getElementById(id);
+
+function money(value) {
+  return Number(value || 0).toLocaleString("da-DK", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  }) + " kr";
+}
+
+function getExpenses() {
+  try {
+    return JSON.parse(localStorage.getItem("gladExpenses") || "[]");
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveExpenses(items) {
+  localStorage.setItem("gladExpenses", JSON.stringify(items));
+}
+
+function escapeHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, function(char) {
+    return {
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#039;"
+    }[char];
+  });
+}
+
+function renderExpenses() {
+  const items = getExpenses();
+  const list = $("expenseList");
+
+  if (!items.length) {
+    list.innerHTML = "<p style='font-size:13px;color:#777'>Ingen udgifter endnu.</p>";
+    return;
+  }
+
+  list.innerHTML = items.map(function(item) {
+    return `
+      <div class="expenseRow">
+        <span>${escapeHtml(item.name)}</span>
+        <b>${money(item.price)}</b>
+        <button class="danger" data-delete-expense="${item.id}">Sil</button>
+      </div>
+    `;
+  }).join("");
+
+  document.querySelectorAll("[data-delete-expense]").forEach(function(button) {
+    button.addEventListener("click", function() {
+      deleteExpense(Number(button.dataset.deleteExpense));
+    });
+  });
+}
+
+function addExpense() {
+  const name = $("expenseName").value.trim();
+  const price = Number($("expensePrice").value);
+
+  if (!name) {
+    alert("Skriv venligst navnet på udgiften.");
+    return;
+  }
+
+  if (isNaN(price) || price < 0) {
+    alert("Skriv venligst en gyldig pris.");
+    return;
+  }
+
+  const items = getExpenses();
+  items.push({
+    id: Date.now(),
+    name: name,
+    price: price
+  });
+
+  saveExpenses(items);
+  $("expenseName").value = "";
+  $("expensePrice").value = "";
+
+  renderExpenses();
+  updateStats();
+}
+
+function deleteExpense(id) {
+  const items = getExpenses().filter(function(item) {
+    return item.id !== id;
+  });
+
+  saveExpenses(items);
+  renderExpenses();
+  updateStats();
+}
+
+function updateCalculator() {
+  const a = Number($("calcFirst").value || 0);
+  const b = Number($("calcSecond").value || 0);
+  const op = $("calcOperator").value;
+
+  let result = 0;
+
+  if (op === "+") result = a + b;
+  if (op === "-") result = a - b;
+  if (op === "*") result = a * b;
+  if (op === "/") result = b === 0 ? 0 : a / b;
+
+  $("calculatorResult").textContent = money(result);
+}
+
+function updateStats() {
+  const activeBookings = bookings.filter(function(item) {
+    return item.status !== "Annulleret";
+  });
+
+  const revenue = activeBookings.reduce(function(sum, item) {
+    return sum + Number(item.price || 0);
+  }, 0);
+
+  const expenses = getExpenses().reduce(function(sum, item) {
+    return sum + Number(item.price || 0);
+  }, 0);
+
+  const profit = revenue - expenses;
+
+  $("bookingCount").textContent = activeBookings.length;
+  $("revenueTotal").textContent = money(revenue);
+  $("expenseTotal").textContent = money(expenses);
+  $("profitTotal").textContent = money(profit);
+
+  $("summaryRevenue").textContent = money(revenue);
+  $("summaryExpenses").textContent = money(expenses);
+  $("summaryProfit").textContent = money(profit);
+}
+
+function showPanel() {
+  $("loginBox").classList.add("hide");
+  $("adminPanel").classList.remove("hide");
+}
+
+function showLogin() {
+  $("adminPanel").classList.add("hide");
+  $("loginBox").classList.remove("hide");
+}
+
+async function loadBookings() {
+  try {
+    const response = await fetch(
+      API_URL + "?action=list&token=" + encodeURIComponent(adminToken)
+    );
+
+    const data = await response.json();
+
+    if (!data.ok) {
+      throw new Error(data.message || "Kunne ikke hente bookinger.");
+    }
+
+    bookings = data.rows || [];
+
+    showPanel();
+
+    const list = $("bookingList");
+
+    if (!bookings.length) {
+      list.innerHTML = "<p>Ingen bookinger endnu.</p>";
+    } else {
+      list.innerHTML = bookings.map(function(item) {
+        return `
+          <div class="booking">
+            <b>${escapeHtml(item.date)} – ${escapeHtml(item.time)}</b><br>
+            Kunde: ${escapeHtml(item.name)}<br>
+            Behandling: ${escapeHtml(item.service)}<br>
+            Pris: <b>${money(item.price)}</b><br>
+            Not: ${escapeHtml(item.note || "-")}<br>
+            Status: ${escapeHtml(item.status)}
+          </div>
+        `;
+      }).join("");
+    }
+
+    renderExpenses();
+    updateStats();
+
+  } catch (error) {
+    $("loginError").textContent = error.message;
+  }
+}
+
+function loginAdmin() {
+  adminToken = $("passwordInput").value.trim();
+
+  if (!adminToken) {
+    $("loginError").textContent = "Skriv venligst adgangskoden.";
+    return;
+  }
+
+  localStorage.setItem("gladAdmin", adminToken);
+  $("loginError").textContent = "";
+  loadBookings();
+}
+
+function logoutAdmin() {
+  localStorage.removeItem("gladAdmin");
+  adminToken = "";
+  bookings = [];
+  $("passwordInput").value = "";
+  showLogin();
+}
+
+$("loginButton").addEventListener("click", loginAdmin);
+$("logoutButton").addEventListener("click", logoutAdmin);
+$("refreshButton").addEventListener("click", loadBookings);
+$("addExpenseButton").addEventListener("click", addExpense);
+
+$("calcFirst").addEventListener("input", updateCalculator);
+$("calcSecond").addEventListener("input", updateCalculator);
+$("calcOperator").addEventListener("change", updateCalculator);
+
+$("passwordInput").addEventListener("keydown", function(event) {
+  if (event.key === "Enter") loginAdmin();
+});
+
+if (adminToken) {
+  loadBookings();
+} else {
+  renderExpenses();
+  updateStats();
+}
+</script>
+</body>
+</html>
